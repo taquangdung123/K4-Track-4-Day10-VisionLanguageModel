@@ -14,20 +14,31 @@ Họ tên: Tạ Quang Dũng
 
 Mọi lần chạy trên Colab T4 16 GB, QLoRA NF4 cho LLM, ViT + projector + `lm_head` giữ fp16, 300 bước × batch 2 × tích luỹ 4, lr 2e-4, warmup 5% + cosine. Thời gian là thời gian train thật (không gồm suy luận ≈ 17–18 phút cho 311 ảnh).
 
-Ảnh minh hoạ:
+Ảnh minh hoạ (12 ảnh trong `report/figures/`; bản ghép lưới vẫn giữ ở `step1_train_samples.jpg` và `predictions_best_worst.jpg`).
 
-- `report/figures/step1_train_samples.jpg`: 6 ảnh train vẽ nhãn gốc (đỏ = pothole, vàng = crack, xanh = manhole), dùng để xác nhận đã hiểu đúng nhãn YOLO.
-- `report/figures/predictions_best_worst.jpg`: 3 ảnh dự đoán tốt nhất và 3 ảnh tệ nhất của E3 trên test (xanh lá = GT, đỏ = dự đoán, xếp theo reward IoU của `rl/reward.py`).
+### Nhãn gốc trên tập train (bước 1)
 
-![Dự đoán E3: 3 tốt nhất (trên), 3 tệ nhất (dưới)](report/figures/predictions_best_worst.jpg)
+Đỏ = pothole, vàng = crack, xanh = manhole; góc trái là mã session. Dùng để xác nhận quy đổi YOLO → pixel đúng trước khi huấn luyện.
 
-Chú thích từng ảnh (trái → phải):
-1. Trên-1, reward 0.99: manhole khớp gần như tuyệt đối (`[381,606,467,656]` vs dự đoán `[381,606,466,656]`).
-2. Trên-2, reward 0.94: crack dọc mép đường, lệch < 1.2% chiều cao khung.
-3. Trên-3, reward 0.92: mảng nứt lớn, dự đoán hẹp hơn GT ở mép trái (x1 = 336 vs 312).
-4. Dưới-1, reward 0.20: GT là một vùng crack rộng `[322,631,759,775]`, model chia thành hai box nhỏ hơn → không box nào đạt IoU ≥ 0.5, thêm một box thừa ở phải.
-5. Dưới-2, reward 0.20: bỏ sót manhole nhỏ ở mép phải, box crack chỉ phủ nửa trái vùng GT.
-6. Dưới-3, reward 0.00: ảnh ngược sáng; model sinh hàng loạt box (crack, pothole lặp lại) tới khi bị cắt 256 token → JSON hỏng. Đây là output hỏng duy nhất của E3 (`parse_valid_rate` = 0.997).
+| | | |
+|---|---|---|
+| ![](report/figures/train_samples/train_1.jpg) | ![](report/figures/train_samples/train_2.jpg) | ![](report/figures/train_samples/train_3.jpg) |
+| 1. Manhole nhỏ bên trái làn đường | 2. Crack + pothole xa, session `vlc-2025-02-19-14` | 3. Mảng crack lớn bao quanh nhiều pothole, session `phone-20250223` (ảnh điện thoại) |
+| ![](report/figures/train_samples/train_4.jpg) | ![](report/figures/train_samples/train_5.jpg) | ![](report/figures/train_samples/train_6.jpg) |
+| 4. Pothole rất nhỏ ở xa (≈ 0.4% khung) | 5. Crack chứa hai pothole lồng bên trong | 6. Pothole giữa đường + crack sát vỉa hè |
+
+### Dự đoán của E3 trên test (xanh lá = GT, đỏ = dự đoán)
+
+Xếp theo reward IoU của `rl/reward.py`: 3 ảnh tốt nhất và 3 ảnh tệ nhất.
+
+| Ảnh | Chú thích |
+|---|---|
+| ![](report/figures/predictions/e3_dung_1_manhole.jpg) | **Đúng, reward 0.99.** Manhole khớp gần như tuyệt đối: GT `[381,606,467,656]`, dự đoán `[381,606,466,656]`. |
+| ![](report/figures/predictions/e3_dung_2_crack.jpg) | **Đúng, reward 0.94.** Crack dọc mép đường, lệch < 1.2% chiều cao khung (GT `[366,578,484,814]`, dự đoán `[366,572,484,803]`). |
+| ![](report/figures/predictions/e3_dung_3_crack_rong.jpg) | **Đúng, reward 0.92.** Mảng nứt lớn; dự đoán hẹp hơn GT ở mép trái (x1 = 336 so với 312). |
+| ![](report/figures/predictions/e3_sai_1_crack_chia_doi.jpg) | **Sai, reward 0.20.** GT là một vùng crack rộng `[322,631,759,775]`; model chỉ khoanh phần bên phải (`[531,672,744,756]`, IoU < 0.5) và thêm một box crack thừa ở mép phải. Đúng chỗ nhưng sai cách cắt box. |
+| ![](report/figures/predictions/e3_sai_2_bo_sot_manhole.jpg) | **Sai, reward 0.20.** Bỏ sót manhole nhỏ ở mép phải; box crack chỉ phủ nửa trái vùng GT nên IoU < 0.5. |
+| ![](report/figures/predictions/e3_sai_3_json_hong.jpg) | **Sai, reward 0.00 (JSON hỏng).** Ảnh ngược sáng; model sinh hàng loạt box lặp lại tới khi bị cắt 256 token nên không có box đỏ nào được vẽ. Đây là output hỏng duy nhất của E3 (`parse_valid_rate` = 0.997). |
 
 ## 10 câu hỏi (trả lời bằng **số của bạn**, không chép lại tài liệu)
 
