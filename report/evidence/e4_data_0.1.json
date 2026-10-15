@@ -1,0 +1,63 @@
+{
+  "n_images": 311,
+  "parse_valid_rate": 1.0,
+  "missing_predictions": 0,
+  "micro": {
+    "precision": 0.27496382054992763,
+    "recall": 0.3259005145797599,
+    "f1": 0.29827315541601257,
+    "tp": 190,
+    "fp": 501,
+    "fn": 393
+  },
+  "per_class": {
+    "pothole": {
+      "precision": 0.16111111111111112,
+      "recall": 0.2396694214876033,
+      "f1": 0.19269102990033224,
+      "tp": 29,
+      "fp": 151,
+      "fn": 92
+    },
+    "crack": {
+      "precision": 0.18734177215189873,
+      "recall": 0.24749163879598662,
+      "f1": 0.2132564841498559,
+      "tp": 74,
+      "fp": 321,
+      "fn": 225
+    },
+    "manhole": {
+      "precision": 0.75,
+      "recall": 0.5337423312883436,
+      "f1": 0.6236559139784946,
+      "tp": 87,
+      "fp": 29,
+      "fn": 76
+    },
+    "other": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0
+    }
+  },
+  "mean_iou": 0.6670365136713837,
+  "fp_per_image": 1.6109324758842443,
+  "f1_ci95": [
+    0.26279602750190983,
+    0.3346425765907306
+  ],
+  "score_version": 1,
+  "name": "E4_DATA_0.1",
+  "dataset_version": "d10-21e4070301",
+  "split": "test",
+  "coord": "norm1000",
+  "meta": {
+    "trainable_params": 148426752,
+    "peak_vram_gb": 12.0,
+    "train_minutes": 51.5
+  }
+}
